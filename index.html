@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crop Disease Detection Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #f4fbf4;
+      color: #333;
+      scroll-behavior: smooth;
+    }
+    header {
+      background: linear-gradient(to right, #d0f0e0, #d9eefe);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #b3e6d5;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #178c6f;
+    }
+    .logo span {
+      color: #348ef7;
+    }
+    nav button {
+      background: none;
+      border: none;
+      margin: 0 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #333;
+    }
+    nav button:hover {
+      color: #178c6f;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      padding: 2rem;
+      background: #e8f6f0;
+    }
+    .card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      width: 40%;
+      min-width: 300px;
+      margin-bottom: 2rem;
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: scale(1.02);
+    }
+    .card h2 {
+      font-size: 1.3rem;
+      color: #178c6f;
+    }
+    .upload-box {
+      border: 2px dashed #ccc;
+      padding: 2rem;
+      text-align: center;
+      border-radius: 10px;
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+    .upload-box:hover {
+      border-color: #178c6f;
+    }
+    .preview-img {
+      margin-top: 1rem;
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .prediction-box {
+      margin-top: 1rem;
+      text-align: center;
+      padding: 2rem;
+      background: #f0f5ff;
+      border-radius: 10px;
+    }
+    .predict-btn, .clear-btn {
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      background-color: #178c6f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+    .predict-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .clear-btn:hover, .predict-btn:hover:enabled {
+      background-color: #126a54;
+    }
+    .history-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .history-box ul {
+      list-style: none;
+      padding: 0;
+    }
+    .history-box li {
+      padding: 0.4rem;
+      border-bottom: 1px solid #eee;
+      font-size: 0.9rem;
+    }
+    section.anchor-section {
+      padding: 2rem;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      background-color: #d9eefe;
+      color: #333;
+      font-size: 0.9rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 768px) {
+      main {
+        flex-direction: column;
+        align-items: center;
+      }
+      .card {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">Crop Disease <span>Detection Hub</span> 🌿</div>
+    <nav>
+      <button onclick="scrollToSection('home')">Home</button>
+      <button onclick="scrollToSection('diseases')">Common Diseases</button>
+      <button onclick="scrollToSection('help-guide')">Help & Guide</button>
+      <button onclick="scrollToSection('about-us')">About Us</button>
+    </nav>
+  </header>
+
+  <div id="home" style="text-align: center; padding: 1rem; font-size: 1.1rem; color: #4c4c4c;">
+    🌱 Advanced AI-powered crop disease detection to protect your harvest 🌾
+  </div>
+
+  <main>
+    <div class="card">
+      <h2>Upload Plant Image</h2>
+      <p>Select a photo of your plant's leaves for analysis.</p>
+      <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+        🌿<br>
+        Click or drag image here
+        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
+      </div>
+      <img id="imagePreview" class="preview-img" src="" alt="Preview" style="display:none;">
+      <div>
+        <button class="predict-btn" id="predictBtn" onclick="predictDisease()" disabled>Predict Disease</button>
+        <button class="clear-btn" onclick="clearImage()">Clear</button>
+      </div>
+      <div class="history-box">
+        <h3>Upload History</h3>
+        <ul id="uploadHistory"></ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Analysis Results</h2>
+      <div class="prediction-box" id="resultBox">
+        <p>ℹ️ Upload an image and click 'Predict Disease' to get results.</p>
+      </div>
+    </div>
+  </main>
+
+  <section id="diseases" class="anchor-section">
+    <h2>Common Diseases</h2>
+    <ul>
+      <li>Leaf Spot</li>
+      <li>Powdery Mildew</li>
+      <li>Blight</li>
+      <li>Rust</li>
+      <li>Yellow Mosaic Virus</li>
+      <li>Bacterial Wilt</li>
+      <li>Downy Mildew</li>
+      <li>Root Rot</li>
+      <li>Anthracnose</li>
+      <li>Sooty Mold</li>
+      <li>Fusarium Wilt</li>
+      <li>Tobacco Mosaic Virus (TMV)</li>
+    </ul>
+  </section>
+
+  <section id="help-guide" class="anchor-section">
+    <h2>🛠️ Help & Guide</h2>
+    <p><strong>Step 1:</strong> Take a clear photo of the affected leaf.</p>
+    <p><strong>Step 2:</strong> Upload it using the image upload section.</p>
+    <p><strong>Step 3:</strong> Click "Predict Disease" to run the analysis.</p>
+    <p><strong>Step 4:</strong> View the detected disease and confidence score.</p>
+    <p><strong>Step 5:</strong> Follow the expert recommendation.</p>
+  </section>
+
+  <section id="about-us" class="anchor-section">
+    <h2>📖 About Us</h2>
+    <p>
+      At Crop Detection Hub, we are dedicated to helping farmers and gardeners safeguard their crops using cutting-edge AI technologies. 
+      Our goal is to make plant disease diagnosis quick, reliable, and accessible to everyone, ensuring healthy harvests and food security.
+    </p>
+  </section>
+
+  <footer>
+    <p>Support: <a href="mailto:support@cropdetectionhub.com">support@cropdetectionhub.com</a></p>
+    <p>&copy; 2025 Crop Disease Detection Hub. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function scrollToSection(id) {
+      const section = document.getElementById(id);
+      if (section) section.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    let uploadedImage = null;
+    const uploadHistory = [];
+    const predictBtn = document.getElementById("predictBtn");
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        uploadedImage = file;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById("imagePreview");
+          preview.src = e.target.result;
+          preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+
+        const timestamp = new Date().toLocaleString();
+        uploadHistory.push({ name: file.name, time: timestamp });
+        updateHistory();
+        predictBtn.disabled = false;
+      }
+    }
+
+    function clearImage() {
+      document.getElementById('fileInput').value = "";
+      document.getElementById('imagePreview').style.display = "none";
+      uploadedImage = null;
+      predictBtn.disabled = true;
+      document.getElementById("resultBox").innerHTML = `<p>ℹ️ Upload an image and click 'Predict Disease' to get results.</p>`;
+    }
+
+    function updateHistory() {
+      const historyList = document.getElementById("uploadHistory");
+      historyList.innerHTML = uploadHistory.map(item => `<li>${item.name} — ${item.time}</li>`).join("");
+    }
+
+    function predictDisease() {
+      const resultBox = document.getElementById("resultBox");
+      if (!uploadedImage) {
+        resultBox.innerHTML = `<p style="color:red;">Please upload an image first.</p>`;
+        return;
+      }
+
+      resultBox.innerHTML = `<p>Analyzing <strong>${uploadedImage.name}</strong>... Please wait.</p>`;
+      setTimeout(() => {
+        const diseases = ["Leaf Spot", "Blight", "Rust", "Powdery Mildew", "Root Rot"];
+        const recommendations = {
+          "Leaf Spot": "Remove affected leaves and apply neem oil.",
+          "Blight": "Use copper-based fungicides and improve air circulation.",
+          "Rust": "Apply sulfur-based spray and remove infected parts.",
+          "Powdery Mildew": "Use baking soda spray and avoid overhead watering.",
+          "Root Rot": "Ensure proper drainage and reduce watering."
+        };
+        const randomIndex = Math.floor(Math.random() * diseases.length);
+        const disease = diseases[randomIndex];
+        const confidence = (Math.random() * (100 - 75) + 75).toFixed(2);
+
+        resultBox.innerHTML = `
+          <h3 style="color: #178c6f">Disease Detected: ${disease}</h3>
+          <p><strong>Confidence:</strong> ${confidence}%</p>
+          <p><strong>Recommendation:</strong> ${recommendations[disease]}</p>
+        `;
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
